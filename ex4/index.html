@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4 - RxJS Click Tracker</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: white;
+      }
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      h1 {
+        margin-top: 0;
+      }
+      .instructions {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
+      .console-output {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 20px;
+      }
+      .console-output div {
+        margin: 5px 0;
+        color: #4ec9b0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🖱️ RxJS Click Tracker</h1>
+      <div class="instructions">
+        <h3>Instructions:</h3>
+        <p>
+          Click on the <strong>LEFT HALF</strong> of the page to see the mouse
+          coordinates captured by RxJS!
+        </p>
+        <p>⚠️ Clicks on the right half will be filtered out (Bonus1)</p>
+        <p>⏱️ Logging is throttled to once per second</p>
+        <p>🔢 Total click count is tracked using scan operator</p>
+        <p>Open the browser console (F12) to see the output, or watch below:</p>
+      </div>
+      <div id="output" class="console-output">
+        <div>Console output will appear here...</div>
+      </div>
+    </div>
+
+    <!-- Load RxJS from CDN -->
+    <script src="https://unpkg.com/rxjs@7/dist/bundles/rxjs.umd.min.js"></script>
+
+    <script type="module">
+      // Import from the global rxjs object (from CDN)
+      const { fromEvent } = rxjs;
+      const { map, filter, throttleTime, scan } = rxjs.operators;
+
+      // Get the output div
+      const outputDiv = document.getElementById("output");
+      outputDiv.innerHTML = "";
+
+      // Solution:
+      // 1. Create an Observable from document click events
+      const clicks$ = fromEvent(document, "click");
+
+      // 2. Use the map operator to extract coordinates
+      // Bonus1: Add filter operator to only log clicks in the left half of the screen
+      const coordinates$ = clicks$.pipe(
+        filter((event) => event.clientX < window.innerWidth / 2),
+        throttleTime(1000), // Limit logging to once per second
+        map((event) => ({ x: event.clientX, y: event.clientY })),
+        scan((acc, coords) => ({ ...coords, count: acc.count + 1 }), {
+          count: 0,
+        }) // Count total clicks
+      );
+
+      // 3. Subscribe and log the transformed coordinates with count
+      coordinates$.subscribe((data) => {
+        console.log(data);
+
+        // Also display in the page
+        const coordDiv = document.createElement("div");
+        coordDiv.textContent = `{ x: ${data.x}, y: ${data.y}, count: ${data.count} }`;
+        outputDiv.insertBefore(coordDiv, outputDiv.firstChild);
+
+        // Keep only last 10 entries
+        while (outputDiv.children.length > 10) {
+          outputDiv.removeChild(outputDiv.lastChild);
+        }
+      });
+    </script>
+  </body>
+</html>

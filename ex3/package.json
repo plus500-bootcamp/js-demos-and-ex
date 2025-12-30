@@ -1,0 +1,19 @@
+{
+  "name": "ex3-typescript",
+  "version": "1.0.0",
+  "description": "TypeScript exercise 3",
+  "main": "ex3-solution.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node ex3-solution.js",
+    "dev": "ts-node ex3-solution.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
