@@ -19,4 +19,4 @@ function processUser(user) {
   };
   
   const result = processUser(userData);
-  console.log(result.displayname); // Bug: wrong casing
+  console.log(result.displayname); 
